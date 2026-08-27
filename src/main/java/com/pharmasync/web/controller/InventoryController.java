@@ -3,8 +3,10 @@ package com.pharmasync.web.controller;
 import com.pharmasync.repository.StockMovementRepository;
 import com.pharmasync.security.SecurityUser;
 import com.pharmasync.service.InventoryService;
+import com.pharmasync.service.ReceiveStockCommand;
 import com.pharmasync.web.dto.AdjustStockRequest;
 import com.pharmasync.web.dto.InventoryResponse;
+import com.pharmasync.web.dto.ReceiveStockRequest;
 import com.pharmasync.web.dto.StockMovementResponse;
 import com.pharmasync.web.dto.TransferStockRequest;
 import jakarta.validation.Valid;
@@ -54,6 +56,18 @@ public class InventoryController {
     public Page<StockMovementResponse> movements(@PathVariable Long batchId, Pageable pageable) {
         return stockMovementRepository.findByInventoryBatchIdOrderByCreatedAtDesc(batchId, pageable)
                 .map(StockMovementResponse::from);
+    }
+
+    @PostMapping("/receive")
+    @PreAuthorize("hasAnyRole('ADMIN', 'INVENTORY_MANAGER')")
+    public ResponseEntity<InventoryResponse> receive(@Valid @RequestBody ReceiveStockRequest request,
+                                                       @AuthenticationPrincipal SecurityUser user) {
+        inventoryService.receiveStock(new ReceiveStockCommand(
+                request.pharmacyId(), request.medicineId(), request.batchNumber(), request.quantity(),
+                request.unitCost(), request.manufacturedDate(), request.expiryDate(), null, user.getUserId()));
+        InventoryResponse response = InventoryResponse.from(
+                inventoryService.getByPharmacyAndMedicine(request.pharmacyId(), request.medicineId()));
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/batches/{batchId}/adjust")
