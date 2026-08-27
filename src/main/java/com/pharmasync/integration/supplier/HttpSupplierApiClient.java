@@ -24,8 +24,8 @@ public class HttpSupplierApiClient implements SupplierApiClient {
 
     @Override
     @Retryable(retryFor = RestClientException.class,
-            maxAttemptsExpression = "#{@supplierProperties.maxRetryAttempts}",
-            backoff = @Backoff(delayExpression = "#{@supplierProperties.retryBackoffMs}"))
+            maxAttemptsExpression = "${pharmasync.supplier.max-retry-attempts}",
+            backoff = @Backoff(delayExpression = "${pharmasync.supplier.retry-backoff-ms}"))
     public List<SupplierCatalogItem> fetchCatalog(String baseUrl, String supplierCode) {
         SupplierCatalogItem[] items = client(baseUrl).get()
                 .uri("/{code}/catalog", supplierCode)
@@ -42,8 +42,8 @@ public class HttpSupplierApiClient implements SupplierApiClient {
 
     @Override
     @Retryable(retryFor = RestClientException.class,
-            maxAttemptsExpression = "#{@supplierProperties.maxRetryAttempts}",
-            backoff = @Backoff(delayExpression = "#{@supplierProperties.retryBackoffMs}"))
+            maxAttemptsExpression = "${pharmasync.supplier.max-retry-attempts}",
+            backoff = @Backoff(delayExpression = "${pharmasync.supplier.retry-backoff-ms}"))
     public SupplierOrderResponse submitOrder(String baseUrl, String supplierCode, SupplierOrderRequest request) {
         return client(baseUrl).post()
                 .uri("/{code}/orders", supplierCode)
@@ -61,8 +61,8 @@ public class HttpSupplierApiClient implements SupplierApiClient {
 
     @Override
     @Retryable(retryFor = RestClientException.class,
-            maxAttemptsExpression = "#{@supplierProperties.maxRetryAttempts}",
-            backoff = @Backoff(delayExpression = "#{@supplierProperties.retryBackoffMs}"))
+            maxAttemptsExpression = "${pharmasync.supplier.max-retry-attempts}",
+            backoff = @Backoff(delayExpression = "${pharmasync.supplier.retry-backoff-ms}"))
     public DeliveryConfirmation confirmDelivery(String baseUrl, String supplierCode, String supplierReference,
                                                  List<SupplierOrderLine> orderedLines) {
         return client(baseUrl).post()
