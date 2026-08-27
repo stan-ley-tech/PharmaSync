@@ -28,7 +28,14 @@ public abstract class AbstractIntegrationTest {
             .withPassword("pharmasync");
 
     @Container
-    static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("apache/kafka:3.8.0"));
+    static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("apache/kafka:3.8.0"))
+            // Vanilla Kafka defaults __consumer_offsets to 50 partitions, which is expensive for a
+            // single-broker test container to initialize with three consumer groups starting at once
+            // and was causing sustained "coordinator is loading"/NOT_COORDINATOR churn under CI load.
+            .withEnv("KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS", "1")
+            .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
+            .withEnv("KAFKA_TRANSACTION_STATE_LOG_MIN_ISR", "1")
+            .withEnv("KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR", "1");
 
     @Container
     static final GenericContainer<?> REDIS = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
