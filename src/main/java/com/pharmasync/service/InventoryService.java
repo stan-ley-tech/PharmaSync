@@ -1,16 +1,16 @@
 package com.pharmasync.service;
 
-import com.pharmasync.domain.inventory.Inventory;
 import com.pharmasync.domain.inventory.InventoryBatch;
+import com.pharmasync.web.dto.InventoryResponse;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface InventoryService {
 
-    Inventory getByPharmacyAndMedicine(Long pharmacyId, Long medicineId);
+    InventoryResponse getByPharmacyAndMedicine(Long pharmacyId, Long medicineId);
 
-    Page<Inventory> findByPharmacy(Long pharmacyId, Pageable pageable);
+    Page<InventoryResponse> findByPharmacy(Long pharmacyId, Pageable pageable);
 
     InventoryBatch receiveStock(ReceiveStockCommand command);
 
@@ -27,7 +27,7 @@ public interface InventoryService {
 
     void transferStock(Long medicineId, Long fromPharmacyId, Long toPharmacyId, int quantity, Long performedByUserId);
 
-    List<Inventory> findLowStockInventory();
+    List<InventoryResponse> findLowStockInventory();
 
     int sweepExpiredBatches();
 

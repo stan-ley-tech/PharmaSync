@@ -36,19 +36,19 @@ public class InventoryController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'PHARMACIST', 'INVENTORY_MANAGER', 'AUDITOR')")
     public Page<InventoryResponse> findByPharmacy(@RequestParam Long pharmacyId, Pageable pageable) {
-        return inventoryService.findByPharmacy(pharmacyId, pageable).map(InventoryResponse::from);
+        return inventoryService.findByPharmacy(pharmacyId, pageable);
     }
 
     @GetMapping("/lookup")
     @PreAuthorize("hasAnyRole('ADMIN', 'PHARMACIST', 'INVENTORY_MANAGER', 'AUDITOR')")
     public InventoryResponse lookup(@RequestParam Long pharmacyId, @RequestParam Long medicineId) {
-        return InventoryResponse.from(inventoryService.getByPharmacyAndMedicine(pharmacyId, medicineId));
+        return inventoryService.getByPharmacyAndMedicine(pharmacyId, medicineId);
     }
 
     @GetMapping("/low-stock")
     @PreAuthorize("hasAnyRole('ADMIN', 'INVENTORY_MANAGER')")
     public List<InventoryResponse> lowStock() {
-        return inventoryService.findLowStockInventory().stream().map(InventoryResponse::from).toList();
+        return inventoryService.findLowStockInventory();
     }
 
     @GetMapping("/batches/{batchId}/movements")
@@ -65,8 +65,7 @@ public class InventoryController {
         inventoryService.receiveStock(new ReceiveStockCommand(
                 request.pharmacyId(), request.medicineId(), request.batchNumber(), request.quantity(),
                 request.unitCost(), request.manufacturedDate(), request.expiryDate(), null, user.getUserId()));
-        InventoryResponse response = InventoryResponse.from(
-                inventoryService.getByPharmacyAndMedicine(request.pharmacyId(), request.medicineId()));
+        InventoryResponse response = inventoryService.getByPharmacyAndMedicine(request.pharmacyId(), request.medicineId());
         return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(response);
     }
 

@@ -28,6 +28,7 @@ import com.pharmasync.repository.UserRepository;
 import com.pharmasync.service.DispenseAllocation;
 import com.pharmasync.service.InventoryService;
 import com.pharmasync.service.ReceiveStockCommand;
+import com.pharmasync.web.dto.InventoryResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -64,16 +65,17 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public Inventory getByPharmacyAndMedicine(Long pharmacyId, Long medicineId) {
+    public InventoryResponse getByPharmacyAndMedicine(Long pharmacyId, Long medicineId) {
         return inventoryRepository.findByPharmacyIdAndMedicineId(pharmacyId, medicineId)
+                .map(InventoryResponse::from)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "No inventory record for medicine " + medicineId + " at pharmacy " + pharmacyId));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Inventory> findByPharmacy(Long pharmacyId, Pageable pageable) {
-        return inventoryRepository.findByPharmacyId(pharmacyId, pageable);
+    public Page<InventoryResponse> findByPharmacy(Long pharmacyId, Pageable pageable) {
+        return inventoryRepository.findByPharmacyId(pharmacyId, pageable).map(InventoryResponse::from);
     }
 
     @Override
@@ -358,8 +360,8 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Inventory> findLowStockInventory() {
-        return inventoryRepository.findAllBelowReorderThreshold();
+    public List<InventoryResponse> findLowStockInventory() {
+        return inventoryRepository.findAllBelowReorderThreshold().stream().map(InventoryResponse::from).toList();
     }
 
     @Override
