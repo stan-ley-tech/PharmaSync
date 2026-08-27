@@ -5,8 +5,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -28,8 +28,7 @@ public abstract class AbstractIntegrationTest {
             .withPassword("pharmasync");
 
     @Container
-    static final KafkaContainer KAFKA = new KafkaContainer(
-            DockerImageName.parse("apache/kafka:3.8.0").asCompatibleSubstituteFor("confluentinc/cp-kafka"));
+    static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("apache/kafka:3.8.0"));
 
     @Container
     static final GenericContainer<?> REDIS = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))

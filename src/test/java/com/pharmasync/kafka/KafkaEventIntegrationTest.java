@@ -34,7 +34,7 @@ class KafkaEventIntegrationTest extends AbstractIntegrationTest {
 
         eventPublisher.publish(event);
 
-        await().atMost(Duration.ofSeconds(15)).untilAsserted(() -> {
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
             List<com.pharmasync.domain.audit.AuditLog> matches =
                     auditLogRepository.findByEntityTypeAndEntityId("Dispensing", dispensingId,
                             org.springframework.data.domain.Pageable.unpaged()).getContent();

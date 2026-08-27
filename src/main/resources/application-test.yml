@@ -4,6 +4,10 @@ spring:
       ddl-auto: validate
   flyway:
     locations: filesystem:migrations
+  datasource:
+    hikari:
+      maximum-pool-size: 40
+      connection-timeout: 30000
 
 pharmasync:
   jwt:
