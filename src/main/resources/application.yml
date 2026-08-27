@@ -46,21 +46,13 @@ spring:
       time-to-live: 10m
       cache-null-values: false
 
+  # Only bootstrap-servers and consumer.group-id are read (via @Value in KafkaConfig); the actual
+  # producer/consumer wiring, serializers, and trusted packages are configured there in code
+  # rather than here, since KafkaConfig defines its own ProducerFactory/ConsumerFactory beans.
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      acks: all
-      retries: 3
     consumer:
       group-id: pharmasync-service
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: com.pharmasync.kafka.event
-        spring.json.use.type.headers: false
 
 server:
   port: ${SERVER_PORT:8080}
