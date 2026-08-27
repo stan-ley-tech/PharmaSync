@@ -3,8 +3,14 @@ package com.pharmasync.service;
 import com.pharmasync.domain.inventory.Inventory;
 import com.pharmasync.domain.inventory.InventoryBatch;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface InventoryService {
+
+    Inventory getByPharmacyAndMedicine(Long pharmacyId, Long medicineId);
+
+    Page<Inventory> findByPharmacy(Long pharmacyId, Pageable pageable);
 
     InventoryBatch receiveStock(ReceiveStockCommand command);
 

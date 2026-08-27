@@ -39,6 +39,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +61,20 @@ public class InventoryServiceImpl implements InventoryService {
     private final PrescriptionItemRepository prescriptionItemRepository;
     private final EventPublisher eventPublisher;
     private final InventoryProperties inventoryProperties;
+
+    @Override
+    @Transactional(readOnly = true)
+    public Inventory getByPharmacyAndMedicine(Long pharmacyId, Long medicineId) {
+        return inventoryRepository.findByPharmacyIdAndMedicineId(pharmacyId, medicineId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No inventory record for medicine " + medicineId + " at pharmacy " + pharmacyId));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Inventory> findByPharmacy(Long pharmacyId, Pageable pageable) {
+        return inventoryRepository.findByPharmacyId(pharmacyId, pageable);
+    }
 
     @Override
     @Transactional

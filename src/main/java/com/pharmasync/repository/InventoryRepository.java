@@ -4,6 +4,8 @@ import com.pharmasync.domain.inventory.Inventory;
 import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +14,8 @@ import org.springframework.data.repository.query.Param;
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     Optional<Inventory> findByPharmacyIdAndMedicineId(Long pharmacyId, Long medicineId);
+
+    Page<Inventory> findByPharmacyId(Long pharmacyId, Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT i FROM Inventory i WHERE i.pharmacy.id = :pharmacyId AND i.medicine.id = :medicineId")
