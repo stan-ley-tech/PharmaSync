@@ -3,7 +3,6 @@ package com.pharmasync.security;
 import com.pharmasync.config.RateLimitProperties;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,8 +48,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private Bucket newBucket() {
-        Bandwidth limit = Bandwidth.classic(properties.capacity(),
-                Refill.greedy(properties.refillTokens(), Duration.ofSeconds(properties.refillDurationSeconds())));
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(properties.capacity())
+                .refillGreedy(properties.refillTokens(), Duration.ofSeconds(properties.refillDurationSeconds()))
+                .build();
         return Bucket.builder().addLimit(limit).build();
     }
 }
