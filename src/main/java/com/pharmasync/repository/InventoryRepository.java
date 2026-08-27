@@ -18,6 +18,10 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     Optional<Inventory> lockByPharmacyIdAndMedicineId(@Param("pharmacyId") Long pharmacyId,
                                                         @Param("medicineId") Long medicineId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT i FROM Inventory i WHERE i.id = :id")
+    Optional<Inventory> lockById(@Param("id") Long id);
+
     @Query("""
             SELECT i FROM Inventory i
             WHERE i.quantityOnHand - i.quantityReserved <=

@@ -5,6 +5,7 @@ import com.pharmasync.domain.inventory.InventoryBatch;
 import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -23,6 +24,10 @@ public interface InventoryBatchRepository extends JpaRepository<InventoryBatch, 
             ORDER BY b.expiryDate ASC
             """)
     List<InventoryBatch> lockAvailableBatchesForDispensing(@Param("inventoryId") Long inventoryId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT b FROM InventoryBatch b WHERE b.id = :id")
+    Optional<InventoryBatch> lockById(@Param("id") Long id);
 
     @Query("""
             SELECT b FROM InventoryBatch b
