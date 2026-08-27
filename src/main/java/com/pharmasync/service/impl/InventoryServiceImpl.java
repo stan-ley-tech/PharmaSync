@@ -181,12 +181,21 @@ public class InventoryServiceImpl implements InventoryService {
         List<DispenseAllocation> allocations = new ArrayList<>();
         int remaining = quantity;
 
-        for (InventoryReservation reservation : active) {
+        for (InventoryReservation staleReservation : active) {
             if (remaining <= 0) {
                 break;
             }
-            InventoryBatch batch = inventoryBatchRepository.lockById(reservation.getInventoryBatch().getId())
+            InventoryBatch batch = inventoryBatchRepository.lockById(staleReservation.getInventoryBatch().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Inventory batch not found"));
+
+            // Re-read after acquiring the batch lock: a concurrent release/consume on this same
+            // reservation could have committed between the initial query above and this point,
+            // and the batch lock is what makes this read authoritative rather than stale.
+            InventoryReservation reservation = reservationRepository.findById(staleReservation.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Inventory reservation not found"));
+            if (reservation.getStatus() != ReservationStatus.ACTIVE || reservation.getQuantity() <= 0) {
+                continue;
+            }
 
             int consumeQty = Math.min(reservation.getQuantity(), remaining);
             int before = batch.getQuantityRemaining();
@@ -421,9 +430,17 @@ public class InventoryServiceImpl implements InventoryService {
     private void releaseReservations(List<InventoryReservation> reservations, String reason, Long performedByUserId) {
         Map<Long, Integer> releasedByInventoryId = new HashMap<>();
 
-        for (InventoryReservation reservation : reservations) {
-            InventoryBatch batch = inventoryBatchRepository.lockById(reservation.getInventoryBatch().getId())
+        for (InventoryReservation staleReservation : reservations) {
+            InventoryBatch batch = inventoryBatchRepository.lockById(staleReservation.getInventoryBatch().getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Inventory batch not found"));
+
+            // See the equivalent re-read in consumeReservations: the batch lock only makes this
+            // authoritative once we re-fetch, since the row itself carries no lock of its own.
+            InventoryReservation reservation = reservationRepository.findById(staleReservation.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Inventory reservation not found"));
+            if (reservation.getStatus() != ReservationStatus.ACTIVE || reservation.getQuantity() <= 0) {
+                continue;
+            }
 
             reservation.setStatus(ReservationStatus.RELEASED);
             reservation.setReleasedAt(Instant.now());
