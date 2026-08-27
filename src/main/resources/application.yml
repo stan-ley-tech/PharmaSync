@@ -78,6 +78,7 @@ pharmasync:
   inventory:
     low-stock-check-cron: ${LOW_STOCK_CRON:0 */15 * * * *}
     expiry-check-cron: ${EXPIRY_CRON:0 0 6 * * *}
+    reservation-sweep-cron: ${RESERVATION_SWEEP_CRON:0 */5 * * * *}
     expiry-warning-days: ${EXPIRY_WARNING_DAYS:30}
     reservation-ttl-minutes: ${RESERVATION_TTL_MINUTES:60}
   supplier:

@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record InventoryProperties(
         String lowStockCheckCron,
         String expiryCheckCron,
+        String reservationSweepCron,
         int expiryWarningDays,
         long reservationTtlMinutes) {
 }
