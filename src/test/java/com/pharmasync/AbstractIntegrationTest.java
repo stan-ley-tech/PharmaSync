@@ -28,7 +28,8 @@ public abstract class AbstractIntegrationTest {
             .withPassword("pharmasync");
 
     @Container
-    static final KafkaContainer KAFKA = new KafkaContainer(DockerImageName.parse("apache/kafka:3.8.0"));
+    static final KafkaContainer KAFKA = new KafkaContainer(
+            DockerImageName.parse("apache/kafka:3.8.0").asCompatibleSubstituteFor("confluentinc/cp-kafka"));
 
     @Container
     static final GenericContainer<?> REDIS = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
