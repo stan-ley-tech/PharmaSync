@@ -1,6 +1,7 @@
 package com.pharmasync;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -14,11 +15,14 @@ import org.testcontainers.utility.DockerImageName;
 /**
  * Base class for tests that need the real infrastructure PharmaSync depends on rather than
  * mocks: PostgreSQL for JPA/Flyway, Kafka for event publishing, and Redis for caching.
- * Containers are started once per test JVM and reused across subclasses.
+ * Containers are started once per test JVM and reused across subclasses; the Spring context
+ * itself is torn down after each class (rather than left cached and reused) so its Hikari pool
+ * and Kafka consumer threads don't keep accumulating across the whole suite run.
  */
 @Testcontainers
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class AbstractIntegrationTest {
 
     @Container

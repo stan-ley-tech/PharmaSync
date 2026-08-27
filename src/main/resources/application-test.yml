@@ -6,7 +6,7 @@ spring:
     locations: filesystem:migrations
   datasource:
     hikari:
-      maximum-pool-size: 40
+      maximum-pool-size: 10
       connection-timeout: 30000
 
 pharmasync:
