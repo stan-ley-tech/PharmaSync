@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    locations: filesystem:migrations
+
+pharmasync:
+  jwt:
+    secret: test-only-secret-key-not-for-production-test-only-secret-key
+  rate-limit:
+    capacity: 1000
+    refill-tokens: 1000
+
+logging:
+  level:
+    com.pharmasync: DEBUG

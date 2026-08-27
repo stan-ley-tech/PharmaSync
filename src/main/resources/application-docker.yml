@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/pharmasync
+  data:
+    redis:
+      host: redis
+  kafka:
+    bootstrap-servers: kafka:9092
+
+pharmasync:
+  supplier:
+    base-url: http://app:8080/simulator/supplier
+
+logging:
+  level:
+    com.pharmasync: INFO

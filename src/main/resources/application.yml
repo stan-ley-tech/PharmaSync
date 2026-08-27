@@ -1,0 +1,107 @@
+spring:
+  application:
+    name: pharmasync
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/pharmasync}
+    username: ${DB_USERNAME:pharmasync}
+    password: ${DB_PASSWORD:pharmasync}
+    hikari:
+      pool-name: pharmasync-pool
+      maximum-pool-size: ${DB_POOL_MAX:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
+        format_sql: false
+
+  flyway:
+    enabled: true
+    locations: filesystem:migrations
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 10m
+      cache-null-values: false
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+    consumer:
+      group-id: pharmasync-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.pharmasync.kafka.event
+        spring.json.use.type.headers: false
+
+server:
+  port: ${SERVER_PORT:8080}
+
+pharmasync:
+  jwt:
+    secret: ${JWT_SECRET:change-this-development-secret-key-change-this-development-secret-key}
+    access-token-ttl-minutes: ${JWT_ACCESS_TTL_MINUTES:30}
+    refresh-token-ttl-minutes: ${JWT_REFRESH_TTL_MINUTES:1440}
+    issuer: pharmasync
+  rate-limit:
+    capacity: ${RATE_LIMIT_CAPACITY:100}
+    refill-tokens: ${RATE_LIMIT_REFILL:100}
+    refill-duration-seconds: ${RATE_LIMIT_REFILL_SECONDS:60}
+  inventory:
+    low-stock-check-cron: ${LOW_STOCK_CRON:0 */15 * * * *}
+    expiry-check-cron: ${EXPIRY_CRON:0 0 6 * * *}
+    expiry-warning-days: ${EXPIRY_WARNING_DAYS:30}
+    reservation-ttl-minutes: ${RESERVATION_TTL_MINUTES:60}
+  supplier:
+    base-url: ${SUPPLIER_API_BASE_URL:http://localhost:8080/simulator/supplier}
+    connect-timeout-ms: 3000
+    read-timeout-ms: 5000
+    max-retry-attempts: 3
+    retry-backoff-ms: 500
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+
+springdoc:
+  swagger-ui:
+    path: /docs
+  api-docs:
+    path: /api-docs
+
+logging:
+  level:
+    com.pharmasync: ${LOG_LEVEL:INFO}
